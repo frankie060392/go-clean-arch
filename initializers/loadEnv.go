@@ -1,8 +1,6 @@
 package initializers
 
-import (
-	"github.com/spf13/viper"
-)
+import "github.com/spf13/viper"
 
 type Config struct {
 	DBHost         string `mapstructure:"POSTGRES_HOST"`

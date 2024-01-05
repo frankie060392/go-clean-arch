@@ -66,7 +66,7 @@ func (ac *AuthController) RefreshToken(ctx *gin.Context) {
 
 }
 
-func (ac *AuthController) Signin(ctx *gin.Context) {
+func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	var payload *models.SignInInput
 
 	if err := ctx.ShouldBindJSON(payload); err != nil {
@@ -110,7 +110,7 @@ func (ac *AuthController) Signin(ctx *gin.Context) {
 
 }
 
-func (ac *AuthController) SignupUser(ctx *gin.Context) {
+func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	var payload *models.SignUpInput
 	if err := ctx.ShouldBindJSON(payload); err != nil {
 		ctx.Render(http.StatusBadRequest, render.JSON{Data: any(gin.H{"status": "failed", "message": err.Error()})})

@@ -69,7 +69,7 @@ func (ac *AuthController) RefreshToken(ctx *gin.Context) {
 func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	var payload *models.SignInInput
 
-	if err := ctx.ShouldBindJSON(payload); err != nil {
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
 	}
@@ -88,7 +88,6 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	}
 
 	config, _ := initializers.LoadConfig(".")
-
 	accessToken, err := utils.CreateToken(config.AccessTokenExpiresIn, user.ID, config.AccessTokenPrivateKey)
 
 	if err != nil {
@@ -112,11 +111,10 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 
 func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	var payload *models.SignUpInput
-	if err := ctx.ShouldBindJSON(payload); err != nil {
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.Render(http.StatusBadRequest, render.JSON{Data: any(gin.H{"status": "failed", "message": err.Error()})})
 		return
 	}
-
 	if payload.Password != payload.PasswordConfirm {
 		ctx.Render(http.StatusBadRequest, render.JSON{Data: any(gin.H{"status": "failed", "message": "Password not match"})})
 		return
@@ -140,9 +138,7 @@ func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
-
-	result := ac.DB.Create(newUser)
-
+	result := ac.DB.Create(&newUser)
 	if result.Error != nil && strings.Contains(result.Error.Error(), "duplicate key value violates unique") {
 		ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "User with that email already exists"})
 		return

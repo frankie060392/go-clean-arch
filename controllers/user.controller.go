@@ -30,7 +30,7 @@ func (uc *UserController) GetMe(ctx *gin.Context) {
 		UpdatedAt: currentUser.UpdatedAt,
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": gin.H{"user": userResponse}})
+	ctx.JSON(http.StatusOK, models.ResponseData{Status: models.Success, Message: "Login success", Data: gin.H{"user": userResponse}})
 }
 
 func (uc *UserController) UpdateUser(ctx *gin.Context) {
@@ -54,5 +54,5 @@ func (uc *UserController) UpdateUser(ctx *gin.Context) {
 	}
 
 	uc.DB.Model(updatedUser).Updates(userToUpdate)
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": userToUpdate})
+	ctx.JSON(http.StatusOK, models.ResponseData{Status: models.Success, Message: "Login success", Data: userToUpdate})
 }

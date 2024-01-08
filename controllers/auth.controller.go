@@ -10,7 +10,6 @@ import (
 	"github.com/frankie060392/golang-gorm-postgres/models"
 	"github.com/frankie060392/golang-gorm-postgres/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/render"
 	"gorm.io/gorm"
 )
 
@@ -35,7 +34,7 @@ func (ac *AuthController) RefreshToken(ctx *gin.Context) {
 
 	cookie, err := ctx.Cookie("refreshToken")
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": message})
+		ctx.AbortWithStatusJSON(http.StatusForbidden, models.ResponseData{Status: models.Error, Message: message})
 		return
 	}
 
@@ -105,24 +104,24 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	ctx.SetCookie("refreshToken", refresh_token, config.RefreshTokenMaxAge*60, "/", "localhost", false, true)
 	ctx.SetCookie("loggedIn", "true", config.AccessTokenMaxAge*60, "/", "localhost", false, false)
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "accessToken": accessToken})
+	ctx.JSON(http.StatusOK, models.ResponseData{Status: models.Success, Message: "Login success", Data: gin.H{"accessToken": accessToken}})
 
 }
 
 func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	var payload *models.SignUpInput
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
-		ctx.Render(http.StatusBadRequest, render.JSON{Data: any(gin.H{"status": "failed", "message": err.Error()})})
+		ctx.JSON(http.StatusBadRequest, models.ResponseData{Status: models.Error, Message: err.Error()})
 		return
 	}
 	if payload.Password != payload.PasswordConfirm {
-		ctx.Render(http.StatusBadRequest, render.JSON{Data: any(gin.H{"status": "failed", "message": "Password not match"})})
+		ctx.JSON(http.StatusBadRequest, models.ResponseData{Status: models.Error, Message: "Password not match"})
 		return
 	}
 
 	hashedPassword, err := utils.HashPassword(payload.Password)
 	if err != nil {
-		ctx.Render(http.StatusBadRequest, render.JSON{Data: any(gin.H{"status": "failed", "message": "Cant hash"})})
+		ctx.JSON(http.StatusBadRequest, models.ResponseData{Status: models.Error, Message: "Hash failed"})
 		return
 	}
 
@@ -140,10 +139,10 @@ func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	}
 	result := ac.DB.Create(&newUser)
 	if result.Error != nil && strings.Contains(result.Error.Error(), "duplicate key value violates unique") {
-		ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "User with that email already exists"})
+		ctx.JSON(http.StatusConflict, models.ResponseData{Status: models.Error, Message: "Duplicate key value"})
 		return
 	} else if result.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": "Something bad happened"})
+		ctx.JSON(http.StatusBadGateway, models.ResponseData{Status: models.Error, Message: "Something happens"})
 		return
 	}
 
@@ -157,6 +156,6 @@ func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 		CreatedAt: newUser.CreatedAt,
 		UpdatedAt: newUser.UpdatedAt,
 	}
-	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": gin.H{"user": userResponse}})
+	ctx.JSON(http.StatusCreated, models.ResponseData{Status: models.Success, Message: "Create success", Data: userResponse})
 
 }

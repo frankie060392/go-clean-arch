@@ -30,7 +30,7 @@ type SignUpInput struct {
 
 type UpdateUser struct {
 	Name  string `json:"name"`
-	Photo string `json:"string"`
+	Photo string `json:"photo"`
 }
 
 type SignInInput struct {

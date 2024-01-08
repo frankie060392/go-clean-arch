@@ -28,6 +28,11 @@ type SignUpInput struct {
 	Photo           string `json:"photo" binding:"required"`
 }
 
+type UpdateUser struct {
+	Name  string `json:"name"`
+	Photo string `json:"string"`
+}
+
 type SignInInput struct {
 	Email    string `json:"email"  binding:"required"`
 	Password string `json:"password"  binding:"required"`

@@ -32,3 +32,27 @@ func (uc *UserController) GetMe(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": gin.H{"user": userResponse}})
 }
+
+func (uc *UserController) UpdateUser(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(models.User)
+
+	var payload *models.UpdateUser
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": err.Error()})
+		return
+	}
+
+	var updatedUser models.User
+	result := uc.DB.First(&updatedUser, "id = ?", currentUser.ID)
+	if result.Error != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": result.Error})
+	}
+
+	userToUpdate := models.User{
+		Name:  payload.Name,
+		Photo: payload.Photo,
+	}
+
+	uc.DB.Model(updatedUser).Updates(userToUpdate)
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": userToUpdate})
+}
